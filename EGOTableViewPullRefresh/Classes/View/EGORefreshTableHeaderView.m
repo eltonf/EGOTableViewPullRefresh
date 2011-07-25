@@ -28,6 +28,7 @@
 
 
 #define TEXT_COLOR	 [UIColor colorWithRed:87.0/255.0 green:108.0/255.0 blue:137.0/255.0 alpha:1.0]
+#define TEXT_SHADOW_COLOR [UIColor darkGrayColor]
 #define FLIP_ANIMATION_DURATION 0.18f
 
 
@@ -50,7 +51,7 @@
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		label.font = [UIFont systemFontOfSize:12.0f];
 		label.textColor = textColor;
-		label.shadowColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
+		label.shadowColor = TEXT_SHADOW_COLOR;
 		label.shadowOffset = CGSizeMake(0.0f, 1.0f);
 		label.backgroundColor = [UIColor clearColor];
 		label.textAlignment = UITextAlignmentCenter;
@@ -62,7 +63,7 @@
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		label.font = [UIFont boldSystemFontOfSize:13.0f];
 		label.textColor = textColor;
-		label.shadowColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
+		label.shadowColor = TEXT_SHADOW_COLOR;
 		label.shadowOffset = CGSizeMake(0.0f, 1.0f);
 		label.backgroundColor = [UIColor clearColor];
 		label.textAlignment = UITextAlignmentCenter;
@@ -103,30 +104,44 @@
   return [self initWithFrame:frame arrowImageName:@"blueArrow.png" textColor:TEXT_COLOR];
 }
 
+- (void)egoRereshScrollViewTriggerReloadAction:(UIScrollView *)scrollView {
+    if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidTriggerRefresh:)]) {
+        [_delegate egoRefreshTableHeaderDidTriggerRefresh:self];
+    }
+    
+    [self setState:EGOOPullRefreshLoading];
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.2];
+    scrollView.contentInset = UIEdgeInsetsMake(60.0f, 0.0f, 0.0f, 0.0f);
+    [UIView commitAnimations];
+}
+
 #pragma mark -
 #pragma mark Setters
 
 - (void)refreshLastUpdatedDate {
-	
 	if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDataSourceLastUpdated:)]) {
 		
-		NSDate *date = [_delegate egoRefreshTableHeaderDataSourceLastUpdated:self];
-		
-		[NSDateFormatter setDefaultFormatterBehavior:NSDateFormatterBehaviorDefault];
-		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		[dateFormatter setDateStyle:NSDateFormatterShortStyle];
-		[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
-
-		_lastUpdatedLabel.text = [NSString stringWithFormat:@"Last Updated: %@", [dateFormatter stringFromDate:date]];
-		[[NSUserDefaults standardUserDefaults] setObject:_lastUpdatedLabel.text forKey:@"EGORefreshTableView_LastRefresh"];
-		[[NSUserDefaults standardUserDefaults] synchronize];
+		NSDate *date = [[_delegate egoRefreshTableHeaderDataSourceLastUpdated:self] copy];
+        
+        if(date) {
+            [NSDateFormatter setDefaultFormatterBehavior:NSDateFormatterBehaviorDefault];
+            NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+            [dateFormatter setDateStyle:NSDateFormatterShortStyle];
+            [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+            
+            _lastUpdatedLabel.text = [NSString stringWithFormat:@"Last Updated: %@", [dateFormatter stringFromDate:date]];
+            [date release];
+            [[NSUserDefaults standardUserDefaults] setObject:_lastUpdatedLabel.text forKey:@"EGORefreshTableView_LastRefresh"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        else {
+            _lastUpdatedLabel.text = nil;
+        }
 		
 	} else {
-		
 		_lastUpdatedLabel.text = nil;
-		
 	}
-
 }
 
 - (void)setState:(EGOPullRefreshState)aState{
@@ -139,7 +154,9 @@
 			[CATransaction setAnimationDuration:FLIP_ANIMATION_DURATION];
 			_arrowImage.transform = CATransform3DMakeRotation((M_PI / 180.0) * 180.0f, 0.0f, 0.0f, 1.0f);
 			[CATransaction commit];
-			
+			if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidChangeState:)]) {
+                [_delegate egoRefreshTableHeaderDidChangeState:aState];
+            }
 			break;
 		case EGOOPullRefreshNormal:
 			
@@ -148,6 +165,9 @@
 				[CATransaction setAnimationDuration:FLIP_ANIMATION_DURATION];
 				_arrowImage.transform = CATransform3DIdentity;
 				[CATransaction commit];
+                if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidChangeState:)]) {
+                    [_delegate egoRefreshTableHeaderDidChangeState:aState];
+                }
 			}
 			
 			_statusLabel.text = NSLocalizedString(@"Pull down to refresh...", @"Pull down to refresh status");
@@ -169,7 +189,9 @@
 			[CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions]; 
 			_arrowImage.hidden = YES;
 			[CATransaction commit];
-			
+			if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidChangeState:)]) {
+                [_delegate egoRefreshTableHeaderDidChangeState:aState];
+            }
 			break;
 		default:
 			break;

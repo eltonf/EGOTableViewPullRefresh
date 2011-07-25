@@ -55,6 +55,7 @@ typedef enum{
 - (void)egoRefreshScrollViewDidScroll:(UIScrollView *)scrollView;
 - (void)egoRefreshScrollViewDidEndDragging:(UIScrollView *)scrollView;
 - (void)egoRefreshScrollViewDataSourceDidFinishedLoading:(UIScrollView *)scrollView;
+- (void)egoRereshScrollViewTriggerReloadAction:(UIScrollView *)scrollView;
 
 @end
 @protocol EGORefreshTableHeaderDelegate
@@ -62,4 +63,5 @@ typedef enum{
 - (BOOL)egoRefreshTableHeaderDataSourceIsLoading:(EGORefreshTableHeaderView*)view;
 @optional
 - (NSDate*)egoRefreshTableHeaderDataSourceLastUpdated:(EGORefreshTableHeaderView*)view;
+- (void)egoRefreshTableHeaderDidChangeState:(EGOPullRefreshState)state;
 @end
