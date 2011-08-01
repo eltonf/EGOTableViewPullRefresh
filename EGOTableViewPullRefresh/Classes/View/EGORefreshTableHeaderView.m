@@ -154,9 +154,6 @@
 			[CATransaction setAnimationDuration:FLIP_ANIMATION_DURATION];
 			_arrowImage.transform = CATransform3DMakeRotation((M_PI / 180.0) * 180.0f, 0.0f, 0.0f, 1.0f);
 			[CATransaction commit];
-			if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidChangeState:)]) {
-                [_delegate egoRefreshTableHeaderDidChangeState:aState];
-            }
 			break;
 		case EGOOPullRefreshNormal:
 			
@@ -165,9 +162,6 @@
 				[CATransaction setAnimationDuration:FLIP_ANIMATION_DURATION];
 				_arrowImage.transform = CATransform3DIdentity;
 				[CATransaction commit];
-                if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidChangeState:)]) {
-                    [_delegate egoRefreshTableHeaderDidChangeState:aState];
-                }
 			}
 			
 			_statusLabel.text = NSLocalizedString(@"Pull down to refresh...", @"Pull down to refresh status");
@@ -189,15 +183,16 @@
 			[CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions]; 
 			_arrowImage.hidden = YES;
 			[CATransaction commit];
-			if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidChangeState:)]) {
-                [_delegate egoRefreshTableHeaderDidChangeState:aState];
-            }
 			break;
 		default:
 			break;
 	}
 	
 	_state = aState;
+    
+    if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidChangeState:)]) {
+        [_delegate egoRefreshTableHeaderDidChangeState:aState];
+    }
 }
 
 
