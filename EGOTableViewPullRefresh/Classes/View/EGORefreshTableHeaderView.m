@@ -39,6 +39,7 @@
 @implementation EGORefreshTableHeaderView
 
 @synthesize delegate=_delegate;
+@synthesize activityIndicatorViewStyle;
 
 
 - (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow textColor:(UIColor *)textColor  {
@@ -102,6 +103,18 @@
 
 - (id)initWithFrame:(CGRect)frame  {
   return [self initWithFrame:frame arrowImageName:@"blueArrow.png" textColor:TEXT_COLOR];
+}
+
+- (void)setActivityIndicatorViewStyle:(UIActivityIndicatorViewStyle)style {
+    _activityView.activityIndicatorViewStyle = style;
+}
+
+- (UIActivityIndicatorViewStyle)activityIndicatorViewStyle {
+    return _activityView.activityIndicatorViewStyle;
+}
+
+- (void)setArrowOffset:(CGSize)offset {
+    _arrowImage.frame = CGRectMake(25.0f + offset.width, self.frame.size.height - 65.0f + offset.height, 30.0f, 55.0f);
 }
 
 - (void)egoRereshScrollViewTriggerReloadAction:(UIScrollView *)scrollView {
@@ -192,7 +205,6 @@
         [_delegate egoRefreshTableHeaderDidChangeState:aState];
     }
 }
-
 
 #pragma mark -
 #pragma mark ScrollView Methods
