@@ -118,9 +118,9 @@
 }
 
 - (void)egoRereshScrollViewTriggerReloadAction:(UIScrollView *)scrollView {
-    if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidTriggerRefresh:)]) {
-        [_delegate egoRefreshTableHeaderDidTriggerRefresh:self];
-    }
+//    if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidTriggerRefresh:)]) {
+//        [_delegate egoRefreshTableHeaderDidTriggerRefresh:self];
+//    }
     
     [self setState:EGOOPullRefreshLoading];
     [UIView beginAnimations:nil context:NULL];
