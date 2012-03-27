@@ -37,11 +37,12 @@
 - (void)setState:(EGOPullRefreshState)aState;
 @end
 
+
 @implementation EGORefreshTableHeaderView
 
 @synthesize delegate=_delegate;
 @synthesize activityIndicatorViewStyle;
-
+@synthesize defaultScrollViewInsets = _defaultScrollViewInsets;
 
 - (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow textColor:(UIColor *)textColor  {
     if((self = [super initWithFrame:frame])) {
@@ -93,6 +94,7 @@
 		_activityView = view;
 		[view release];
 		
+        self.defaultScrollViewInsets = UIEdgeInsetsMake(0.0, 0.0, 0.0, 0.0);
 		
 		[self setState:EGOOPullRefreshNormal];
 		
@@ -263,11 +265,11 @@
 }
 
 - (void)egoRefreshScrollViewDataSourceDidFinishedLoading:(UIScrollView *)scrollView {	
-	
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:.3];
-	[scrollView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
-	[UIView commitAnimations];
+    [UIView animateWithDuration:0.3 animations:^{
+        [scrollView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
+    } completion:^(BOOL finished) {
+        [scrollView setContentInset:self.defaultScrollViewInsets];
+    }];
 	
 	[self setState:EGOOPullRefreshNormal];
 
