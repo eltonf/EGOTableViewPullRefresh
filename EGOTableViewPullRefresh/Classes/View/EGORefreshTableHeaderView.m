@@ -27,9 +27,6 @@
 #import "EGORefreshTableHeaderView.h"
 
 
-//#define TEXT_COLOR	 [UIColor colorWithRed:87.0/255.0 green:108.0/255.0 blue:137.0/255.0 alpha:1.0]
-#define TEXT_COLOR [UIColor whiteColor]
-#define TEXT_SHADOW_COLOR [UIColor clearColor]
 #define FLIP_ANIMATION_DURATION 0.18f
 
 
@@ -43,30 +40,79 @@
 @synthesize delegate=_delegate;
 @synthesize activityIndicatorViewStyle;
 @synthesize defaultScrollViewInsets = _defaultScrollViewInsets;
+@synthesize style = _style;
 
-- (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow textColor:(UIColor *)textColor  {
-    if((self = [super initWithFrame:frame])) {
-		
+- (void)dealloc {	
+	_delegate=nil;
+	_activityView = nil;
+	_statusLabel = nil;
+	_arrowImage = nil;
+	_lastUpdatedLabel = nil;
+    [super dealloc];
+}
+
+- (id)initWithFrame:(CGRect)frame  {
+    return [self initWithFrame:frame style:EGOHeaderStyleWhite];
+}
+
+- (id)initWithFrame:(CGRect)frame style:(EGOHeaderStyle)style {
+    self = [super initWithFrame:frame];
+    if(self) {		
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-		self.backgroundColor = [UIColor colorWithRed:226.0/255.0 green:231.0/255.0 blue:237.0/255.0 alpha:1.0];
-
+		self.backgroundColor = [UIColor clearColor];
+        
+        UIColor *textColor = nil;
+        UIColor *textShadowColor = nil;
+        UIImage *arrowImage = nil;
+        UIActivityIndicatorViewStyle indicatorStyle;
+        switch (style) {
+            case EGOHeaderStyleWhite: {
+                textColor = [UIColor whiteColor];
+                textShadowColor = [UIColor darkGrayColor];
+                arrowImage = [UIImage imageNamed:@"whiteArrow.png"];
+                indicatorStyle = UIActivityIndicatorViewStyleWhite;
+            } break;
+                
+            case EGOHeaderStyleBlack: {
+                textColor = [UIColor blackColor];
+                textShadowColor = [UIColor whiteColor];
+                arrowImage = [UIImage imageNamed:@"blackArrow.png"];
+                indicatorStyle = UIActivityIndicatorViewStyleGray;
+            } break;
+                
+            case EGOHeaderStyleBlue: {
+                textColor = [UIColor blueColor];
+                textShadowColor = [UIColor whiteColor];
+                arrowImage = [UIImage imageNamed:@"blueArrow.png"];
+                indicatorStyle = UIActivityIndicatorViewStyleGray;
+            } break;
+                
+            case EGOHeaderStyleGray:                
+            default: {
+                textColor = [UIColor darkGrayColor];
+                textShadowColor = [UIColor whiteColor];
+                arrowImage = [UIImage imageNamed:@"grayArrow.png"];
+                indicatorStyle = UIActivityIndicatorViewStyleGray;
+            } break;
+        }
+        
 		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, frame.size.height - 30.0f, self.frame.size.width, 20.0f)];
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		label.font = [UIFont systemFontOfSize:12.0f];
 		label.textColor = textColor;
-		label.shadowColor = TEXT_SHADOW_COLOR;
+		label.shadowColor = textShadowColor;
 		label.shadowOffset = CGSizeMake(0.0f, 1.0f);
 		label.backgroundColor = [UIColor clearColor];
 		label.textAlignment = UITextAlignmentCenter;
 		[self addSubview:label];
-		_lastUpdatedLabel=label;
+		_lastUpdatedLabel = label;
 		[label release];
 		
 		label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, frame.size.height - 48.0f, self.frame.size.width, 20.0f)];
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		label.font = [UIFont boldSystemFontOfSize:13.0f];
 		label.textColor = textColor;
-		label.shadowColor = TEXT_SHADOW_COLOR;
+		label.shadowColor = textShadowColor;
 		label.shadowOffset = CGSizeMake(0.0f, 1.0f);
 		label.backgroundColor = [UIColor clearColor];
 		label.textAlignment = UITextAlignmentCenter;
@@ -74,39 +120,34 @@
 		_statusLabel=label;
 		[label release];
 		
-		CALayer *layer = [CALayer layer];
-		layer.frame = CGRectMake(25.0f, frame.size.height - 65.0f, 30.0f, 55.0f);
-		layer.contentsGravity = kCAGravityResizeAspect;
-		layer.contents = (id)[UIImage imageNamed:arrow].CGImage;
+		_arrowImage = [CALayer layer];
+		_arrowImage.frame = CGRectMake(25.0f, frame.size.height - 65.0f, 30.0f, 55.0f);
+		_arrowImage.contentsGravity = kCAGravityResizeAspect;
+		_arrowImage.contents = (id)arrowImage.CGImage;
 		
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 40000
 		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-			layer.contentsScale = [[UIScreen mainScreen] scale];
+			_arrowImage.contentsScale = [[UIScreen mainScreen] scale];
 		}
 #endif
 		
-		[[self layer] addSublayer:layer];
-		_arrowImage=layer;
+		[[self layer] addSublayer:_arrowImage];
 		
-		UIActivityIndicatorView *view = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-		view.frame = CGRectMake(25.0f, frame.size.height - 38.0f, 20.0f, 20.0f);
-		[self addSubview:view];
-		_activityView = view;
-		[view release];
+		_activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+		_activityView.frame = CGRectMake(25.0f, frame.size.height - 38.0f, 20.0f, 20.0f);
+		[self addSubview:_activityView];
 		
         self.defaultScrollViewInsets = UIEdgeInsetsMake(0.0, 0.0, 0.0, 0.0);
 		
-		[self setState:EGOOPullRefreshNormal];
-		
+		[self setState:EGOOPullRefreshNormal];		
     }
 	
     return self;
-	
 }
 
-- (id)initWithFrame:(CGRect)frame  {
-  return [self initWithFrame:frame arrowImageName:@"whiteArrow.png" textColor:TEXT_COLOR];
-}
+
+
+
 
 - (void)setActivityIndicatorViewStyle:(UIActivityIndicatorViewStyle)style {
     _activityView.activityIndicatorViewStyle = style;
@@ -274,20 +315,5 @@
 	[self setState:EGOOPullRefreshNormal];
 
 }
-
-
-#pragma mark -
-#pragma mark Dealloc
-
-- (void)dealloc {
-	
-	_delegate=nil;
-	_activityView = nil;
-	_statusLabel = nil;
-	_arrowImage = nil;
-	_lastUpdatedLabel = nil;
-    [super dealloc];
-}
-
 
 @end

@@ -33,6 +33,13 @@ typedef enum{
 	EGOOPullRefreshLoading,	
 } EGOPullRefreshState;
 
+typedef enum {
+    EGOHeaderStyleBlack,
+    EGOHeaderStyleWhite,
+    EGOHeaderStyleGray,
+    EGOHeaderStyleBlue
+} EGOHeaderStyle;
+
 @protocol EGORefreshTableHeaderDelegate;
 @interface EGORefreshTableHeaderView : UIView {
 	
@@ -43,15 +50,14 @@ typedef enum{
 	UILabel *_statusLabel;
 	CALayer *_arrowImage;
 	UIActivityIndicatorView *_activityView;
-	
-
 }
 
 @property (nonatomic,assign) id <EGORefreshTableHeaderDelegate> delegate;
 @property (nonatomic, assign) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
 @property (nonatomic, assign) UIEdgeInsets defaultScrollViewInsets;
+@property (nonatomic, assign) EGOHeaderStyle style;
 
-- (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow textColor:(UIColor *)textColor;
+- (id)initWithFrame:(CGRect)frame style:(EGOHeaderStyle)style;
 
 - (void)setArrowOffset:(CGSize)offset;
 
