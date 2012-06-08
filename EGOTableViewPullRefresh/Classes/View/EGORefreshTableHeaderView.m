@@ -133,7 +133,7 @@
 		
 		[[self layer] addSublayer:_arrowImage];
 		
-		_activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+		_activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:indicatorStyle];
 		_activityView.frame = CGRectMake(25.0f, frame.size.height - 38.0f, 20.0f, 20.0f);
 		[self addSubview:_activityView];
 		
